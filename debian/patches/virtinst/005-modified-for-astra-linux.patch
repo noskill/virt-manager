@@ -1,0 +1,23 @@
+--- virt-manager-1.0.1/virtinst/seclabel.py	2014-02-17 21:37:52.000000000 +0400
++++ virt-manager-1.0.1/virtinst/seclabel.py	2014-08-01 14:12:49.231470916 +0400
+@@ -34,9 +34,9 @@
+ 
+     MODEL_TEST = "testSecurity"
+     MODEL_SELINUX = "selinux"
+-    MODEL_DAC = "dac"
++    MODEL_PARSEC = "parsec"
+     MODEL_NONE = "none"
+-    MODELS = [MODEL_SELINUX, MODEL_DAC, MODEL_NONE]
++    MODELS = [MODEL_SELINUX, MODEL_PARSEC, MODEL_NONE]
+ 
+     _XML_ROOT_NAME = "seclabel"
+     _XML_PROP_ORDER = ["type", "model", "relabel", "label", "imagelabel"]
+@@ -68,7 +68,7 @@
+         if lab_len == 3:
+             return self.MODEL_SELINUX
+         elif lab_len == 2:
+-            return self.MODEL_DAC
++            return self.MODEL_PARSEC
+         else:
+             raise ValueError("Unknown model type for label '%s'" % self.label)
+     def _get_default_model(self):
