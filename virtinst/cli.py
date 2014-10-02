@@ -26,6 +26,7 @@ import os
 import shlex
 import sys
 import traceback
+import re
 
 import libvirt
 
@@ -1455,7 +1456,7 @@ def _parse_disk_source(guest, path, pool, vol, size, fmt, sparse):
     abspath = None
     volinst = None
     volobj = None
-
+  
     # Strip media type
     optcount = sum([bool(p) for p in [path, pool, vol]])
     if optcount > 1:
@@ -1463,7 +1464,7 @@ def _parse_disk_source(guest, path, pool, vol, size, fmt, sparse):
     if optcount == 0 and size:
         # Saw something like --disk size=X, have it imply pool=default
         pool = "default"
-
+    #import pdb;pdb.set_trace()
     if path:
         abspath = os.path.abspath(path)
         if os.path.dirname(abspath) == "/var/lib/libvirt/images":
@@ -1530,7 +1531,10 @@ class ParserDisk(VirtCLIParser):
         self.set_param(None, "size", setter_cb=noset_cb)
         self.set_param(None, "format", setter_cb=noset_cb)
         self.set_param(None, "sparse", setter_cb=noset_cb)
-
+        #import pdb;pdb.set_trace()
+        
+        self.set_param("source_protocol", "source_protocol")
+        self.set_param("host_name", "host_name")
         self.set_param("path", "path")
         self.set_param("device", "device")
         self.set_param("bus", "bus")
@@ -1582,6 +1586,7 @@ class ParserDisk(VirtCLIParser):
                 fail(_("Unknown '%s' value '%s'" % ("perms", val)))
         convert_perms(opts.get_opt_param("perms"))
 
+        
         path = opts.get_opt_param("path")
         had_path = path is not None
         backing_store = opts.get_opt_param("backing_store")
@@ -1590,14 +1595,26 @@ class ParserDisk(VirtCLIParser):
         size = parse_size(opts.get_opt_param("size"))
         fmt = opts.get_opt_param("format")
         sparse = _on_off_convert("sparse", opts.get_opt_param("sparse"))
-
+        host_name = None
+        protocol = None
         abspath, volinst, volobj = _parse_disk_source(
             self.guest, path, pool, vol, size, fmt, sparse)
+        #import pdb;pdb.set_trace()
+        if volobj and volobj.path():
+            if 'gluster' in volobj.path():
+                protocol = 'gluster'
+                ip = re.compile('(([2][5][0-5]\.)|([2][0-4][0-9]\.)|([0-1]?[0-9]?[0-9]\.)){3}' + '(([2][5][0-5])|([2][0-4][0-9])|([0-1]?[0-9]?[0-9]))')
+                host_name = ip.search(volobj.path()).group()
+                path = (vol, volobj)
+            else:
+                path = volobj.path()
+        else:
+            path = abspath
 
-        path = volobj and volobj.path() or abspath
+        
         if had_path or path:
             opts.opts["path"] = path or ""
-
+        
         inst = VirtCLIParser._parse(self, opts, inst)
 
         create_kwargs = {"size": size, "fmt": fmt, "sparse": sparse,
@@ -1605,7 +1622,10 @@ class ParserDisk(VirtCLIParser):
         if any(create_kwargs.values()):
             inst.set_create_storage(**create_kwargs)
         inst.cli_size = size
-
+        if host_name:
+            inst.host_name = host_name
+        if protocol:
+            inst.source_protocol = protocol
         if not inst.target:
             skip_targets = [d.target for d in self.guest.get_devices("disk")]
             inst.generate_target(skip_targets)
@@ -2135,7 +2155,7 @@ def build_parser_map(options, skip=None, only=None):
                                (parserobj.option_variable_name,
                                 parserobj.cli_arg_name, parserclass))
         parsermap[parserobj.option_variable_name] = parserobj
-
+    #import pdb;pdb.set_trace()
     register_parser("metadata", ParserMetadata)
     register_parser("events", ParserEvents)
     register_parser("resource", ParserResource)
@@ -2194,6 +2214,7 @@ def parse_option_strings(parsermap, options, guest, instlist, update=False):
             continue
 
         for inst in util.listify(instlist):
+#            import pdb;pdb.set_trace()
             parseret = parsermap[option_variable_name].parse(
                 guest, getattr(options, option_variable_name), inst,
                 validate=not update)

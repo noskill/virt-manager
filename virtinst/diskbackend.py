@@ -33,14 +33,15 @@ def check_if_path_managed(conn, path):
     Determine if we can use libvirt storage APIs to create or lookup
     the passed path. If we can't, throw an error
     """
+    #import pdb;pdb.set_trace()
     vol = None
     pool = None
     verr = None
     path_is_pool = False
 
-    def lookup_vol_by_path():
+    def lookup_vol_by_path(_path):
         try:
-            vol = conn.storageVolLookupByPath(path)
+            vol = conn.storageVolLookupByPath(_path)
             vol.info()
             return vol, None
         except libvirt.libvirtError, e:
@@ -57,8 +58,8 @@ def check_if_path_managed(conn, path):
         except:
             pass
         return None
-
-    vol = lookup_vol_by_path()[0]
+    #import pdb;pdb.set_trace()
+    vol = lookup_vol_by_path(path)[0]
     if not vol:
         pool = StoragePool.lookup_pool_by_path(conn, os.path.dirname(path))
 
@@ -72,7 +73,15 @@ def check_if_path_managed(conn, path):
             # Pool may need to be refreshed, but if it errors,
             # invalidate it
             pool.refresh(0)
-            vol, verr = lookup_vol_by_path()
+            #import pdb;pdb.set_trace()
+            import xml.etree.ElementTree as ET
+            root = ET.fromstring(pool.XMLDesc())
+            if root.attrib['type'] == 'gluster':
+                host_name = root.findall(".//host[@name]")[0].attrib['name']
+                _path = 'gluster://' + host_name + '/' + path
+            else:
+                _path = path
+            vol, verr = lookup_vol_by_path(_path)
             if verr:
                 vol = lookup_vol_name(os.path.basename(path))
         except Exception, e:
@@ -415,7 +424,7 @@ class StorageBackend(_StorageBase):
     """
     def __init__(self, conn, path, vol_object, pool_object):
         _StorageBase.__init__(self)
-
+        #import pdb;pdb.set_trace()
         self._conn = conn
         self._vol_object = vol_object
         self._pool_object = pool_object
@@ -460,7 +469,13 @@ class StorageBackend(_StorageBase):
 
     def _get_path(self):
         if self._vol_object:
-            return self._get_vol_xml().target_path
+            #import pdb;pdb.set_trace()
+            result = self._get_vol_xml().target_path
+            if "gluster" in result:
+                import re
+                ip = re.compile('(([2][5][0-5]\.)|([2][0-4][0-9]\.)|([0-1]?[0-9]?[0-9]\.)){3}' + '(([2][5][0-5])|([2][0-4][0-9])|([0-1]?[0-9]?[0-9]))/')
+                result = result.split(ip.search(result).group())[1]
+            return result
         return self._path
     path = property(_get_path)
 
@@ -506,6 +521,7 @@ class StorageBackend(_StorageBase):
         """
         Return disk 'type' value per storage settings
         """
+        #import pdb;pdb.set_trace()
         if self._dev_type is None:
             if self._vol_object:
                 t = self._vol_object.info()[0]
@@ -513,6 +529,8 @@ class StorageBackend(_StorageBase):
                     self._dev_type = "file"
                 elif t == libvirt.VIR_STORAGE_VOL_BLOCK:
                     self._dev_type = "block"
+                elif t == libvirt.VIR_STORAGE_VOL_NETWORK:
+                    self._dev_type = "network"
                 else:
                     self._dev_type = "file"
 

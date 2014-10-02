@@ -233,6 +233,7 @@ class Guest(XMLBuilder):
 
         @param dev: VirtualDevice instance to attach to guest
         """
+
         self._add_child(dev)
 
     def remove_device(self, dev):
@@ -395,7 +396,7 @@ class Guest(XMLBuilder):
             if not dry:
                 for dev in self.get_all_devices():
                     dev.setup(meter)
-
+            #import pdb;pdb.set_trace()
             start_xml, final_xml = self._build_xml(is_initial)
             if return_xml:
                 return (start_xml, final_xml)
@@ -891,6 +892,7 @@ class Guest(XMLBuilder):
 
         used_targets = []
         for disk in self.get_devices("disk"):
+            #import pdb;pdb.set_trace()
             if not disk.bus:
                 set_disk_bus(disk)
 

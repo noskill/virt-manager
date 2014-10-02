@@ -249,15 +249,19 @@ class StoragePool(_StorageObject):
         """
         if not conn.check_support(conn.SUPPORT_CONN_STORAGE):
             return None
-
+        #import pdb;pdb.set_trace()
         def check_pool(pool, path):
             if use_source:
                 xml_path = pool.source_path
             else:
+                if pool.type == 'gluster':
+                    if pool.source_name == path:
+                        return True
+                    return False
                 xml_path = pool.target_path
             if xml_path is not None and os.path.abspath(xml_path) == path:
                 return True
-
+        #import pdb;pdb.set_trace()
         for pool in conn.fetch_all_pools():
             if check_pool(pool, path):
                 return conn.storagePoolLookupByName(pool.name)
@@ -276,6 +280,7 @@ class StoragePool(_StorageObject):
 
     def __init__(self, *args, **kwargs):
         _StorageObject.__init__(self, *args, **kwargs)
+        #import pdb;pdb.set_trace()
         self._random_uuid = None
 
 
@@ -294,6 +299,7 @@ class StoragePool(_StorageObject):
                                 name))
 
     def _get_default_target_path(self):
+        #import pdb;pdb.set_trace()
         if not self.supports_property("target_path"):
             return None
         if (self.type == self.TYPE_DIR or
@@ -632,6 +638,7 @@ class StorageVolume(_StorageObject):
         return None
 
     def _get_vol_type(self):
+        #import pdb;pdb.set_trace()
         if (self._pool_type == StoragePool.TYPE_DISK or
             self._pool_type == StoragePool.TYPE_LOGICAL):
             return self.TYPE_BLOCK
