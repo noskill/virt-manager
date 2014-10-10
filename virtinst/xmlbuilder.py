@@ -853,7 +853,6 @@ class XMLBuilder(object):
         """
         data = self._prepare_get_xml()
         try:
-            #import pdb;pdb.set_trace()
             return self._do_get_xml_config()
         finally:
             self._finish_get_xml(data)
@@ -1032,7 +1031,6 @@ class XMLBuilder(object):
                 node = self._xmlstate.xml_node.docCopyNodeList(
                     self._xmlstate.xml_node.doc)
                 ctx = node
-            #import pdb;pdb.set_trace()
             self._add_parse_bits(node)
             ret = self._xmlstate.get_node_xml(ctx)
         finally:
@@ -1065,12 +1063,10 @@ class XMLBuilder(object):
         # Set all defaults if the properties have one registered
         xmlprops = self._all_xml_props()
         childprops = self._all_child_props()
-        #import pdb;pdb.set_trace()
         for prop in xmlprops.values():
             prop._set_default(self)
 
         # Set up preferred XML ordering
-        #import pdb;pdb.set_trace()
         do_order = self._proporder[:]
         for key in reversed(self._XML_PROP_ORDER):
             if key not in xmlprops and key not in childprops:

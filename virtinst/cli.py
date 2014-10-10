@@ -1464,7 +1464,6 @@ def _parse_disk_source(guest, path, pool, vol, size, fmt, sparse):
     if optcount == 0 and size:
         # Saw something like --disk size=X, have it imply pool=default
         pool = "default"
-    #import pdb;pdb.set_trace()
     if path:
         abspath = os.path.abspath(path)
         if os.path.dirname(abspath) == "/var/lib/libvirt/images":
@@ -1531,7 +1530,6 @@ class ParserDisk(VirtCLIParser):
         self.set_param(None, "size", setter_cb=noset_cb)
         self.set_param(None, "format", setter_cb=noset_cb)
         self.set_param(None, "sparse", setter_cb=noset_cb)
-        #import pdb;pdb.set_trace()
         
         self.set_param("source_protocol", "source_protocol")
         self.set_param("host_name", "host_name")
@@ -1599,7 +1597,6 @@ class ParserDisk(VirtCLIParser):
         protocol = None
         abspath, volinst, volobj = _parse_disk_source(
             self.guest, path, pool, vol, size, fmt, sparse)
-        #import pdb;pdb.set_trace()
         if volobj and volobj.path():
             if 'gluster' in volobj.path():
                 protocol = 'gluster'
@@ -2155,7 +2152,6 @@ def build_parser_map(options, skip=None, only=None):
                                (parserobj.option_variable_name,
                                 parserobj.cli_arg_name, parserclass))
         parsermap[parserobj.option_variable_name] = parserobj
-    #import pdb;pdb.set_trace()
     register_parser("metadata", ParserMetadata)
     register_parser("events", ParserEvents)
     register_parser("resource", ParserResource)
@@ -2214,7 +2210,6 @@ def parse_option_strings(parsermap, options, guest, instlist, update=False):
             continue
 
         for inst in util.listify(instlist):
-#            import pdb;pdb.set_trace()
             parseret = parsermap[option_variable_name].parse(
                 guest, getattr(options, option_variable_name), inst,
                 validate=not update)

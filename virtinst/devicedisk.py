@@ -210,7 +210,6 @@ class VirtualDisk(VirtualDevice):
         Convert a value of VirtualDisk.type to it's associated XML
         target property name
         """
-        #import pdb;pdb.set_trace()
         if disk_type == VirtualDisk.TYPE_FILE:
             return "file"
         elif disk_type == VirtualDisk.TYPE_BLOCK:
@@ -242,7 +241,6 @@ class VirtualDisk(VirtualDevice):
             return False
 
         try:
-            #import pdb;pdb.set_trace()
             (vol, pool, path_is_pool) = diskbackend.check_if_path_managed(
                 conn, path)
             ignore = pool
@@ -521,7 +519,6 @@ class VirtualDisk(VirtualDevice):
     ]
 
     def __init__(self, *args, **kwargs):
-        #import pdb;pdb.set_trace()
         VirtualDevice.__init__(self, *args, **kwargs)
 
         self.__storage_backend = None
@@ -541,7 +538,6 @@ class VirtualDisk(VirtualDevice):
         return self._storage_backend.path
  
     def _set_path(self, val):
-        #import pdb;pdb.set_trace()
         if self._storage_creator:
             raise ValueError("Can't change disk path if storage creation info "
                              "has been set.")
@@ -561,7 +557,6 @@ class VirtualDisk(VirtualDevice):
         return None
 
     def get_vol_object(self):
-        #import pdb;pdb.set_trace()
         return self._storage_backend.get_vol_object()
     def get_vol_install(self):
         if not self._storage_creator:
@@ -579,7 +574,6 @@ class VirtualDisk(VirtualDevice):
     #############################
 
     def _get_default_type(self):
-        #import pdb;pdb.set_trace()
         if self._storage_creator:
             return self._storage_creator.get_dev_type()
         return self._storage_backend.get_dev_type()
@@ -616,7 +610,6 @@ class VirtualDisk(VirtualDevice):
     ##################
 
     def _make_source_xpath(self):
-        #import pdb;pdb.set_trace()
         return "./source/@" + self.disk_type_to_target_prop(self.type)
     _xmlpath = XMLProperty(name="disk path",
                            make_xpath_cb=_make_source_xpath,
@@ -660,7 +653,6 @@ class VirtualDisk(VirtualDevice):
     #################################
 
     def _get_storage_backend(self):
-        #import pdb;pdb.set_trace()
         if self.__storage_backend is None:
             
             self.__storage_backend = diskbackend.StorageBackend(self.conn,
@@ -715,7 +707,6 @@ class VirtualDisk(VirtualDevice):
 
         if fake and size is None:
             size = .000001
-        #import pdb;pdb.set_trace()
         ignore, creator = _distill_storage(
             self.conn, True, self.nomanaged, path, None,
             vol_install, clone_path, backing_store,
@@ -754,7 +745,6 @@ class VirtualDisk(VirtualDevice):
         the associated backing storage. This needs to be manually called
         if changing an existing disk's media.
         """
-        #import pdb;pdb.set_trace()
         self.type = self._get_default_type()
         self.driver_name = self._get_default_driver_name()
         self.driver_type = self._get_default_driver_type()
@@ -772,7 +762,6 @@ class VirtualDisk(VirtualDevice):
         """
         Return True if the user requested us to create a device
         """
-        #import pdb;pdb.set_trace()
         return bool(self._storage_creator)
 
     def validate(self):
@@ -842,7 +831,6 @@ class VirtualDisk(VirtualDevice):
             meter = progress.BaseMeter()
         if not self._storage_creator:
             return
-        #import pdb;pdb.set_trace()
         volobj = self._storage_creator.create(meter)
         self._storage_creator = None
         if volobj:
@@ -963,7 +951,6 @@ class VirtualDisk(VirtualDevice):
         prefix, maxnode = self.get_target_prefix(skip_targets)
         skip_targets = [t for t in skip_targets if t and t.startswith(prefix)]
         skip_targets.sort()
-        #import pdb;pdb.set_trace()
         def get_target():
             first_found = None
 
