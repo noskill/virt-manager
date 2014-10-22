@@ -549,6 +549,7 @@ class XMLProperty(property):
         """
         propstore = xmlbuilder._propstore
         proporder = xmlbuilder._proporder
+
         if _trackprops and self not in _seenprops:
             _seenprops.append(self)
         propname = self._findpropname(xmlbuilder)
@@ -1030,6 +1031,7 @@ class XMLBuilder(object):
                 node = self._xmlstate.xml_node.docCopyNodeList(
                     self._xmlstate.xml_node.doc)
                 ctx = node
+
             self._add_parse_bits(node)
             ret = self._xmlstate.get_node_xml(ctx)
         finally:
@@ -1062,6 +1064,7 @@ class XMLBuilder(object):
         # Set all defaults if the properties have one registered
         xmlprops = self._all_xml_props()
         childprops = self._all_child_props()
+
         for prop in xmlprops.values():
             prop._set_default(self)
 
@@ -1069,7 +1072,6 @@ class XMLBuilder(object):
         do_order = self._proporder[:]
         for key in reversed(self._XML_PROP_ORDER):
             if key not in xmlprops and key not in childprops:
-	        
                 raise RuntimeError("programming error: key '%s' must be "
                                    "xml prop or child prop" % key)
             if key in do_order:
