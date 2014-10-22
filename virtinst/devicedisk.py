@@ -24,6 +24,7 @@ import stat
 import pwd
 import subprocess
 import logging
+import libvirt
 import re
 
 import urlgrabber.progress as progress
@@ -100,20 +101,19 @@ def _is_dir_searchable(uid, username, path):
 def _distill_storage(conn, do_create, nomanaged,
                      path, vol_object, vol_install,
                      clone_path, backing_store,
-                     *args):
+                     *args, **kwargs):
     """
     Validates and updates params when the backing storage is changed
     """
     pool = None
     path_is_pool = False
     storage_capable = conn.check_support(conn.SUPPORT_CONN_STORAGE)
-
     if vol_object:
         pass
     elif not storage_capable:
         pass
     elif path and not nomanaged:
-        if not 'gluster' in path:
+        if not kwargs.get('protocol'):
             path = os.path.abspath(path)
         (vol_object, pool, path_is_pool) = diskbackend.manage_path(conn, path)
 
@@ -183,6 +183,7 @@ class VirtualDisk(VirtualDevice):
     TYPE_FILE = "file"
     TYPE_BLOCK = "block"
     TYPE_DIR = "dir"
+    TYPE_VOLUME = "volume"
     TYPE_NETWORK = "network"
     types = [TYPE_FILE, TYPE_BLOCK, TYPE_DIR, TYPE_NETWORK]
 
@@ -219,7 +220,7 @@ class VirtualDisk(VirtualDevice):
         elif disk_type == VirtualDisk.TYPE_NETWORK:
             return "name"
         return "file"
-
+  
     @staticmethod
     def pretty_disk_bus(bus):
         if bus in ["ide", "sata", "scsi", "usb", "sd"]:
@@ -541,9 +542,8 @@ class VirtualDisk(VirtualDevice):
         if self._storage_creator:
             raise ValueError("Can't change disk path if storage creation info "
                              "has been set.")
-        if val is not None and (type(val) != str) and len(val) == 2: #gluster
-             self._change_backend(val[0], val[1])
-             self._xmlpath = val[0]
+        if type(val) == libvirt.virStorageVol:
+             self._change_backend(None, val)
         else:
              self._change_backend(val, None)
         self._xmlpath = self.path
@@ -616,6 +616,7 @@ class VirtualDisk(VirtualDevice):
                            clear_first=["./source/@" + target for target in
                                         _TARGET_PROPS])
 
+    sourcePool = XMLProperty("./source/@pool")
     source_protocol = XMLProperty("./source/@protocol")
     host_name = XMLProperty("./source/host/@name")
 
@@ -707,6 +708,7 @@ class VirtualDisk(VirtualDevice):
 
         if fake and size is None:
             size = .000001
+
         ignore, creator = _distill_storage(
             self.conn, True, self.nomanaged, path, None,
             vol_install, clone_path, backing_store,

@@ -152,7 +152,6 @@ class VirtualConnection(object):
                               libvirt.VIR_CRED_PASSPHRASE]
         authcb = self._auth_cb
         authcb_data = passwordcb
-
         conn = libvirt.openAuth(self._open_uri,
                     [valid_auth_options, authcb,
                     (authcb_data, valid_auth_options)],

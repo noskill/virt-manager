@@ -1456,7 +1456,7 @@ def _parse_disk_source(guest, path, pool, vol, size, fmt, sparse):
     abspath = None
     volinst = None
     volobj = None
-  
+
     # Strip media type
     optcount = sum([bool(p) for p in [path, pool, vol]])
     if optcount > 1:
@@ -1595,14 +1595,17 @@ class ParserDisk(VirtCLIParser):
         sparse = _on_off_convert("sparse", opts.get_opt_param("sparse"))
         host_name = None
         protocol = None
+        
         abspath, volinst, volobj = _parse_disk_source(
             self.guest, path, pool, vol, size, fmt, sparse)
+
         if volobj and volobj.path():
-            if 'gluster' in volobj.path():
+            gluster_protocol = 'gluster://'
+            if volobj.path().startswith('gluster://'):
+                path = volobj
                 protocol = 'gluster'
-                ip = re.compile('(([2][5][0-5]\.)|([2][0-4][0-9]\.)|([0-1]?[0-9]?[0-9]\.)){3}' + '(([2][5][0-5])|([2][0-4][0-9])|([0-1]?[0-9]?[0-9]))')
-                host_name = ip.search(volobj.path()).group()
-                path = (vol, volobj)
+                tmp = volobj.path()[len(gluster_protocol):]
+                host_name =  tmp.split('/')[0]
             else:
                 path = volobj.path()
         else:
@@ -1613,16 +1616,16 @@ class ParserDisk(VirtCLIParser):
             opts.opts["path"] = path or ""
         
         inst = VirtCLIParser._parse(self, opts, inst)
-
+   
         create_kwargs = {"size": size, "fmt": fmt, "sparse": sparse,
             "vol_install": volinst, "backing_store": backing_store}
         if any(create_kwargs.values()):
             inst.set_create_storage(**create_kwargs)
         inst.cli_size = size
-        if host_name:
-            inst.host_name = host_name
         if protocol:
             inst.source_protocol = protocol
+        if host_name:
+            inst.host_name = host_name
         if not inst.target:
             skip_targets = [d.target for d in self.guest.get_devices("disk")]
             inst.generate_target(skip_targets)

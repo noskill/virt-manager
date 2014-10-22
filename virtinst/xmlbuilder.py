@@ -549,7 +549,6 @@ class XMLProperty(property):
         """
         propstore = xmlbuilder._propstore
         proporder = xmlbuilder._proporder
-
         if _trackprops and self not in _seenprops:
             _seenprops.append(self)
         propname = self._findpropname(xmlbuilder)

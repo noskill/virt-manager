@@ -99,7 +99,6 @@ class XMLParseTest(unittest.TestCase):
         Test changing Guest() parameters after parsing
         """
         guest, outfile = self._get_test_content("change-guest")
-
         check = self._make_checker(guest)
         check("name", "TestGuest", "change_name")
         check("id", None, 1234)
@@ -332,6 +331,7 @@ class XMLParseTest(unittest.TestCase):
         disk6 = disks[5]
         disk6.size = 1
         disk9 = disks[8]
+        disk_gl = disks[9]
 
         check = self._make_checker(disk1)
         check("path", "/tmp/test.img", "/dev/null")
@@ -374,8 +374,18 @@ class XMLParseTest(unittest.TestCase):
         check = self._make_checker(disk9)
         check("sourcePool", "defaultPool", "anotherPool")
 
-        self._alter_compare(guest.get_xml_config(), outfile)
+        check = self._make_checker(disk_gl)
+        
+        check("source_protocol", "sheepdog", "gluster")
 
+        check("host_name", "test.domain", "192.168.1.100")
+        pool = conn.storagePoolLookupByName('gluster-pool')
+        vol  = pool.listAllVolumes()[0]  # virStorageVolLookupByName is not available yet
+        self.assertEquals(disk_gl.path, "sheepdog-pool/test-sheepdog.raw")
+        disk_gl.path = vol
+        self.assertEquals(disk_gl.path, "test-volume/test-gluster.raw")
+        self._alter_compare(guest.get_xml_config(), outfile)
+    
     def testSingleDisk(self):
         xml = ("""<disk type="file" device="disk"><source file="/a.img"/>\n"""
                """<target dev="hda" bus="ide"/></disk>\n""")
