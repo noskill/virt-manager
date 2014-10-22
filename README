@@ -48,3 +48,24 @@ There are further project details on the website:
 
 See the HACKING file for info about submitting patches or contributing
 translations.
+
+//
+
+How to use with gluster pools
+
+1) create gluster pool using virsh define with similiar xml:
+
+<pool type='gluster'>
+  <name>gluster-volume</name>
+  <source>
+    <host name='192.168.1.100'/>
+    <dir path='/'/>
+    <name>test-volume</name>
+  </source>
+</pool>
+
+where "test-volume" is gluster volume as in output of "gluster volume list" command.
+2) create disk image on gluster volume using qemu-img for example
+
+
+3) virt-install --cdrom=/home/noskill/vms/debian-7.6.0-i386-netinst.iso --disk vol=gluster-volume/debian-gluster2.raw,bus=ide,cache=none --noautoconsole --redirdev usb,type=spicevmc --redirdev usb,type=spicevmc --connect=qemu:///system --channel spicevmc,target_type=virtio --graphics spice,listen=0.0.0.0 --vcpus=1 --ram=1024  --name=debian1
