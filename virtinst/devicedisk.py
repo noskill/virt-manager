@@ -108,13 +108,13 @@ def _distill_storage(conn, do_create, nomanaged,
     pool = None
     path_is_pool = False
     storage_capable = conn.check_support(conn.SUPPORT_CONN_STORAGE)
+
     if vol_object:
         pass
     elif not storage_capable:
         pass
     elif path and not nomanaged:
-        if not kwargs.get('protocol'):
-            path = os.path.abspath(path)
+        path = os.path.abspath(path)
         (vol_object, pool, path_is_pool) = diskbackend.manage_path(conn, path)
 
 
@@ -219,8 +219,10 @@ class VirtualDisk(VirtualDevice):
             return "dir"
         elif disk_type == VirtualDisk.TYPE_NETWORK:
             return "name"
+        elif disk_type == VirtualDisk.TYPE_VOLUME:
+            return "volume"
         return "file"
-  
+
     @staticmethod
     def pretty_disk_bus(bus):
         if bus in ["ide", "sata", "scsi", "usb", "sd"]:
@@ -550,7 +552,6 @@ class VirtualDisk(VirtualDevice):
 
     path = property(_get_path, _set_path)
 
-
     def get_sparse(self):
         if self._storage_creator:
             return self._storage_creator.get_sparse()
@@ -655,7 +656,6 @@ class VirtualDisk(VirtualDevice):
 
     def _get_storage_backend(self):
         if self.__storage_backend is None:
-            
             self.__storage_backend = diskbackend.StorageBackend(self.conn,
                                                                 self._xmlpath,
                                                                 None, None)
@@ -833,6 +833,7 @@ class VirtualDisk(VirtualDevice):
             meter = progress.BaseMeter()
         if not self._storage_creator:
             return
+
         volobj = self._storage_creator.create(meter)
         self._storage_creator = None
         if volobj:
@@ -953,6 +954,7 @@ class VirtualDisk(VirtualDevice):
         prefix, maxnode = self.get_target_prefix(skip_targets)
         skip_targets = [t for t in skip_targets if t and t.startswith(prefix)]
         skip_targets.sort()
+
         def get_target():
             first_found = None
 

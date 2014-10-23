@@ -249,6 +249,7 @@ class StoragePool(_StorageObject):
         """
         if not conn.check_support(conn.SUPPORT_CONN_STORAGE):
             return None
+
         def check_pool(pool, path):
             if use_source:
                 xml_path = pool.source_path
@@ -260,6 +261,7 @@ class StoragePool(_StorageObject):
                 xml_path = pool.target_path
             if xml_path is not None and os.path.abspath(xml_path) == path:
                 return True
+
         for pool in conn.fetch_all_pools():
             if check_pool(pool, path):
                 return conn.storagePoolLookupByName(pool.name)

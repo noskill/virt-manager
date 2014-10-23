@@ -99,6 +99,7 @@ class XMLParseTest(unittest.TestCase):
         Test changing Guest() parameters after parsing
         """
         guest, outfile = self._get_test_content("change-guest")
+
         check = self._make_checker(guest)
         check("name", "TestGuest", "change_name")
         check("id", None, 1234)

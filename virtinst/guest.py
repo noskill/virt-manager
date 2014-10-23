@@ -233,7 +233,6 @@ class Guest(XMLBuilder):
 
         @param dev: VirtualDevice instance to attach to guest
         """
-
         self._add_child(dev)
 
     def remove_device(self, dev):
@@ -396,6 +395,7 @@ class Guest(XMLBuilder):
             if not dry:
                 for dev in self.get_all_devices():
                     dev.setup(meter)
+
             start_xml, final_xml = self._build_xml(is_initial)
             if return_xml:
                 return (start_xml, final_xml)

@@ -38,9 +38,9 @@ def check_if_path_managed(conn, path):
     verr = None
     path_is_pool = False
 
-    def lookup_vol_by_path(_path):
+    def lookup_vol_by_path(a_vol_path):
         try:
-            vol = conn.storageVolLookupByPath(_path)
+            vol = conn.storageVolLookupByPath(a_vol_path)
             vol.info()
             return vol, None
         except libvirt.libvirtError, e:
@@ -57,6 +57,7 @@ def check_if_path_managed(conn, path):
         except:
             pass
         return None
+
     vol = lookup_vol_by_path(path)[0]
     if not vol:
         pool = StoragePool.lookup_pool_by_path(conn, os.path.dirname(path))
@@ -75,10 +76,10 @@ def check_if_path_managed(conn, path):
             root = ET.fromstring(pool.XMLDesc())
             if root.attrib['type'] == 'gluster':
                 host_name = root.findall(".//host[@name]")[0].attrib['name']
-                _path = 'gluster://' + host_name + '/' + path
+                vol_path = 'gluster://' + host_name + '/' + path
             else:
-                _path = path
-            vol, verr = lookup_vol_by_path(_path)
+                vol_path = path
+            vol, verr = lookup_vol_by_path(vol_path)
             if verr:
                 vol = lookup_vol_name(os.path.basename(path))
         except Exception, e:
@@ -421,6 +422,7 @@ class StorageBackend(_StorageBase):
     """
     def __init__(self, conn, path, vol_object, pool_object):
         _StorageBase.__init__(self)
+
         self._conn = conn
         self._vol_object = vol_object
         self._pool_object = pool_object

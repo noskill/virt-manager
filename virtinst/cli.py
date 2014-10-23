@@ -26,7 +26,6 @@ import os
 import shlex
 import sys
 import traceback
-import re
 
 import libvirt
 
@@ -1464,6 +1463,7 @@ def _parse_disk_source(guest, path, pool, vol, size, fmt, sparse):
     if optcount == 0 and size:
         # Saw something like --disk size=X, have it imply pool=default
         pool = "default"
+
     if path:
         abspath = os.path.abspath(path)
         if os.path.dirname(abspath) == "/var/lib/libvirt/images":
@@ -1584,7 +1584,6 @@ class ParserDisk(VirtCLIParser):
                 fail(_("Unknown '%s' value '%s'" % ("perms", val)))
         convert_perms(opts.get_opt_param("perms"))
 
-        
         path = opts.get_opt_param("path")
         had_path = path is not None
         backing_store = opts.get_opt_param("backing_store")
@@ -2155,6 +2154,7 @@ def build_parser_map(options, skip=None, only=None):
                                (parserobj.option_variable_name,
                                 parserobj.cli_arg_name, parserclass))
         parsermap[parserobj.option_variable_name] = parserobj
+
     register_parser("metadata", ParserMetadata)
     register_parser("events", ParserEvents)
     register_parser("resource", ParserResource)
