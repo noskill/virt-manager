@@ -140,8 +140,7 @@ class Command(object):
         logging.debug(self.cmdstr)
 
         app = self.argv[0]
-        if "--ram 64 --pxe --nographics --noautoconsole --hvm --file /dev/default-pool/new1.img --file-size .00001 --nonsparse" in self.cmdstr:
-            pass #import pdb;pdb.set_trace()
+
         oldstdout = sys.stdout
         oldstderr = sys.stderr
         oldstdin = sys.stdin
