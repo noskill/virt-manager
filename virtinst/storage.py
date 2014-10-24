@@ -295,14 +295,14 @@ class StoragePool(_StorageObject):
             pass
         if pool:
             raise ValueError(_("Name '%s' already in use by another pool." %
-                                name))
+                               name))
 
     def _get_default_target_path(self):
         if not self.supports_property("target_path"):
             return None
         if (self.type == self.TYPE_DIR or
-            self.type == self.TYPE_NETFS or
-            self.type == self.TYPE_FS):
+                self.type == self.TYPE_NETFS or
+                self.type == self.TYPE_FS):
             return (DEFAULT_DIR_TARGET_BASE + self.name)
         if self.type == self.TYPE_LOGICAL:
             name = self.name

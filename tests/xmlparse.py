@@ -376,7 +376,7 @@ class XMLParseTest(unittest.TestCase):
         check("sourcePool", "defaultPool", "anotherPool")
 
         check = self._make_checker(disk_gl)
-        
+
         check("source_protocol", "sheepdog", "gluster")
 
         check("host_name", "test.domain", "192.168.1.100")
@@ -386,7 +386,7 @@ class XMLParseTest(unittest.TestCase):
         disk_gl.path = vol
         self.assertEquals(disk_gl.path, "test-volume/test-gluster.raw")
         self._alter_compare(guest.get_xml_config(), outfile)
-    
+
     def testSingleDisk(self):
         xml = ("""<disk type="file" device="disk"><source file="/a.img"/>\n"""
                """<target dev="hda" bus="ide"/></disk>\n""")

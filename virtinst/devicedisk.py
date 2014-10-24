@@ -101,10 +101,11 @@ def _is_dir_searchable(uid, username, path):
 def _distill_storage(conn, do_create, nomanaged,
                      path, vol_object, vol_install,
                      clone_path, backing_store,
-                     *args, **kwargs):
+                     *args):
     """
     Validates and updates params when the backing storage is changed
     """
+
     pool = None
     path_is_pool = False
     storage_capable = conn.check_support(conn.SUPPORT_CONN_STORAGE)
@@ -116,7 +117,6 @@ def _distill_storage(conn, do_create, nomanaged,
     elif path and not nomanaged:
         path = os.path.abspath(path)
         (vol_object, pool, path_is_pool) = diskbackend.manage_path(conn, path)
-
 
     creator = None
     backend = diskbackend.StorageBackend(conn, path, vol_object,
@@ -539,15 +539,15 @@ class VirtualDisk(VirtualDevice):
         if self._storage_creator:
             return self._storage_creator.path
         return self._storage_backend.path
- 
+
     def _set_path(self, val):
         if self._storage_creator:
             raise ValueError("Can't change disk path if storage creation info "
                              "has been set.")
         if type(val) == libvirt.virStorageVol:
-             self._change_backend(None, val)
+            self._change_backend(None, val)
         else:
-             self._change_backend(val, None)
+            self._change_backend(val, None)
         self._xmlpath = self.path
 
     path = property(_get_path, _set_path)

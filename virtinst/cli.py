@@ -1530,7 +1530,7 @@ class ParserDisk(VirtCLIParser):
         self.set_param(None, "size", setter_cb=noset_cb)
         self.set_param(None, "format", setter_cb=noset_cb)
         self.set_param(None, "sparse", setter_cb=noset_cb)
-        
+
         self.set_param("source_protocol", "source_protocol")
         self.set_param("host_name", "host_name")
         self.set_param("path", "path")
@@ -1594,7 +1594,7 @@ class ParserDisk(VirtCLIParser):
         sparse = _on_off_convert("sparse", opts.get_opt_param("sparse"))
         host_name = None
         protocol = None
-        
+
         abspath, volinst, volobj = _parse_disk_source(
             self.guest, path, pool, vol, size, fmt, sparse)
 
@@ -1610,12 +1610,11 @@ class ParserDisk(VirtCLIParser):
         else:
             path = abspath
 
-        
         if had_path or path:
             opts.opts["path"] = path or ""
-        
+
         inst = VirtCLIParser._parse(self, opts, inst)
-   
+
         create_kwargs = {"size": size, "fmt": fmt, "sparse": sparse,
             "vol_install": volinst, "backing_store": backing_store}
         if any(create_kwargs.values()):

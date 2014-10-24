@@ -22,6 +22,7 @@ import logging
 import os
 import statvfs
 
+import libxml2
 import libvirt
 
 from . import util
@@ -72,10 +73,11 @@ def check_if_path_managed(conn, path):
             # Pool may need to be refreshed, but if it errors,
             # invalidate it
             pool.refresh(0)
-            import xml.etree.ElementTree as ET
-            root = ET.fromstring(pool.XMLDesc())
-            if root.attrib['type'] == 'gluster':
-                host_name = root.findall(".//host[@name]")[0].attrib['name']
+
+            pool_xml = libxml2.parseDoc(pool.XMLDesc())
+            if pool_xml.getRootElement().prop('type') == 'gluster':
+                ctxt = pool_xml.xpathNewContext()
+                host_name = ctxt.xpathEval("//host[@name]")[0].prop('name')
                 vol_path = 'gluster://' + host_name + '/' + path
             else:
                 vol_path = path
