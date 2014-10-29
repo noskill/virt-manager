@@ -381,7 +381,7 @@ class XMLParseTest(unittest.TestCase):
 
         check("host_name", "test.domain", "192.168.1.100")
         pool = conn.storagePoolLookupByName('gluster-pool')
-        vol  = pool.listAllVolumes()[0]  # virStorageVolLookupByName is not available yet
+        vol = pool.storageVolLookupByName('test-volume2.raw')
         self.assertEquals(disk_gl.path, "sheepdog-pool/test-sheepdog.raw")
         disk_gl.path = vol
         self.assertEquals(disk_gl.path, "test-volume/test-gluster.raw")

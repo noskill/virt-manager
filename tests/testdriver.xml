@@ -1751,7 +1751,7 @@ ba</description>
     <name>test-volume</name>
   </source>
   <volume type='network'>
-  <name>debian-gluster2.raw</name>
+  <name>test-volume2.raw</name>
   <key>gluster://192.168.1.100/test-volume/test-gluster.raw</key>
   <source>
   </source>
