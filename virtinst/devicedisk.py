@@ -25,6 +25,7 @@ import pwd
 import subprocess
 import logging
 import libvirt
+import libxml2
 import re
 
 import urlgrabber.progress as progress
@@ -109,12 +110,11 @@ def _distill_storage(conn, do_create, nomanaged,
     pool = None
     path_is_pool = False
     storage_capable = conn.check_support(conn.SUPPORT_CONN_STORAGE)
-
     if vol_object:
         pass
     elif not storage_capable:
         pass
-    elif path and not nomanaged:
+    elif path and not nomanaged and not path.startswith('gluster://'):
         path = os.path.abspath(path)
         (vol_object, pool, path_is_pool) = diskbackend.manage_path(conn, path)
 
@@ -387,7 +387,7 @@ class VirtualDisk(VirtualDevice):
         """
         Return a list of VM names that are using the passed path.
 
-        @param conn: virConnect to check VMs
+        @param conn: viStorageBackendrConnect to check VMs
         @param path: Path to check for
         @param shareable: Path we are checking is marked shareable, so
             don't warn if it conflicts with another shareable source.
@@ -513,7 +513,6 @@ class VirtualDisk(VirtualDevice):
             num += (ord(c) - ord('a') + k) * (26 ** i)
         return num
 
-
     _XML_PROP_ORDER = [
         "type", "device",
         "driver_name", "driver_type",
@@ -544,10 +543,10 @@ class VirtualDisk(VirtualDevice):
         if self._storage_creator:
             raise ValueError("Can't change disk path if storage creation info "
                              "has been set.")
-        if type(val) == libvirt.virStorageVol:
-            self._change_backend(None, val)
-        else:
-            self._change_backend(val, None)
+        #if type(val) == libvirt.virStorageVol:
+            #self._change_backend(None, val)
+        #else:
+        self._change_backend(val, None)
         self._xmlpath = self.path
 
     path = property(_get_path, _set_path)

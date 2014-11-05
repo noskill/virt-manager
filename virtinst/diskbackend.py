@@ -24,6 +24,7 @@ import statvfs
 
 import libxml2
 import libvirt
+import re
 
 from . import util
 from .storage import StoragePool, StorageVolume
@@ -429,7 +430,8 @@ class StorageBackend(_StorageBase):
         self._vol_object = vol_object
         self._pool_object = pool_object
         self._path = path
-
+        if path and path.startswith('gluster://') and not vol_object:
+            self._vol_object = conn.storageVolLookupByPath(path)
         if self._vol_object is not None:
             self._pool_object = None
             self._path = None
@@ -462,6 +464,10 @@ class StorageBackend(_StorageBase):
                 parsexml=self._vol_object.XMLDesc(0))
         return self._vol_xml
 
+    def gluster_path_to_volpath(self, path):
+        vol = self._conn.storageVolLookupByPath(path)
+        pool = vol.storagePoolLookupByVolume()
+        return pool.name() + '/' + vol.name()
 
     ##############
     # Public API #
@@ -469,12 +475,14 @@ class StorageBackend(_StorageBase):
 
     def _get_path(self):
         if self._vol_object:
-            result = self._get_vol_xml().target_path
+            path = self._get_vol_xml().target_path
             gluster_protocol = 'gluster://'
-            if result.startswith(gluster_protocol):
-                tmp = result[len(gluster_protocol):]
-                return result.split(tmp[:tmp.find('/') + 1])[1]
-            return result
+            if path.startswith(gluster_protocol):
+	        search = re.search("(.*gluster:\/\/.*\/)(.*\/.*)", path)
+	        if search:
+                    return search.group(2)
+                raise RuntimeError('internal error: can\'t parse path: "{0}"'.format(path))
+            return path
         return self._path
     path = property(_get_path)
 

@@ -1463,7 +1463,6 @@ def _parse_disk_source(guest, path, pool, vol, size, fmt, sparse):
     if optcount == 0 and size:
         # Saw something like --disk size=X, have it imply pool=default
         pool = "default"
-
     if path:
         abspath = os.path.abspath(path)
         if os.path.dirname(abspath) == "/var/lib/libvirt/images":
@@ -1498,7 +1497,7 @@ def _parse_disk_source(guest, path, pool, vol, size, fmt, sparse):
                 raise ValueError(_("Format attribute not supported for this "
                                    "volume type"))
             volinst.format = fmt
-
+   
     elif vol:
         if not vol.count("/"):
             raise ValueError(_("Storage volume must be specified as "
@@ -1601,12 +1600,10 @@ class ParserDisk(VirtCLIParser):
         if volobj and volobj.path():
             gluster_protocol = 'gluster://'
             if volobj.path().startswith('gluster://'):
-                path = volobj
                 protocol = 'gluster'
                 tmp = volobj.path()[len(gluster_protocol):]
                 host_name =  tmp.split('/')[0]
-            else:
-                path = volobj.path()
+            path = volobj.path()
         else:
             path = abspath
 
