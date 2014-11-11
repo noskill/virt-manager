@@ -1738,6 +1738,31 @@ ba</description>
   </source>
 </pool>
 
+<pool type='sheepdog'>
+  <name>myshpool</name>
+  <uuid>581381f8-a13f-4f7c-89b5-9c9b71c64834</uuid>
+  <capacity unit='bytes'>107374182400</capacity>
+  <allocation unit='bytes'>53687091200</allocation>
+  <available unit='bytes'>53687091200</available>
+  <source>
+    <host name='localhost' port='7000'/>
+    <name>mysheeppool</name>
+  </source>
+  <volume type='network'>
+  <name>vol_sheepdog</name>
+  <capacity unit='bytes'>1024</capacity>
+  <allocation unit='bytes'>0</allocation>
+  <target>
+    <path>myshpool:vol_sheepdog</path>
+    <format type='unknown'/>
+    <permissions>
+      <mode>0600</mode>
+      <owner>4294967295</owner>
+      <group>4294967295</group>
+    </permissions>
+    </target>
+  </volume>
+</pool>
 
 <pool type='gluster'>
   <name>gluster-pool</name>
@@ -1753,8 +1778,6 @@ ba</description>
   <volume type='network'>
   <name>test-volume2.raw</name>
   <key>gluster://192.168.1.100/test-volume/test-gluster.raw</key>
-  <source>
-  </source>
   <capacity unit='bytes'>10737418240</capacity>
   <allocation unit='bytes'>2489327616</allocation>
   <target>
