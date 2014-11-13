@@ -30,6 +30,11 @@ from . import util
 from .storage import StoragePool, StorageVolume
 
 
+GLUSTER = 'gluster'
+SHEEPDOG = 'sheepdog'
+NETWORK_STORAGE_PROTOCOLS = (GLUSTER, SHEEPDOG)
+
+
 def check_if_path_managed(conn, path):
     """
     Determine if we can use libvirt storage APIs to create or lookup
@@ -76,10 +81,11 @@ def check_if_path_managed(conn, path):
             pool.refresh(0)
 
             pool_xml = libxml2.parseDoc(pool.XMLDesc())
-            if pool_xml.getRootElement().prop('type') == 'gluster':
+            pool_type = pool_xml.getRootElement().prop('type')
+            if pool_type in NETWORK_STORAGE_PROTOCOLS:
                 ctxt = pool_xml.xpathNewContext()
                 host_name = ctxt.xpathEval("//host[@name]")[0].prop('name')
-                vol_path = 'gluster://' + host_name + '/' + path
+                vol_path = pool_type + '://' + host_name + '/' + path
             else:
                 vol_path = path
             vol, verr = lookup_vol_by_path(vol_path)
@@ -171,6 +177,9 @@ def build_vol_install(conn, path, pool, size, sparse):
     volinst.allocation = alloc
     return volinst
 
+
+def is_network_protocol(uri):
+    return any(uri.startswith(protocol + '://') for protocol in NETWORK_STORAGE_PROTOCOLS)
 
 
 class _StorageBase(object):
@@ -430,7 +439,7 @@ class StorageBackend(_StorageBase):
         self._vol_object = vol_object
         self._pool_object = pool_object
         self._path = path
-        if path and path.startswith('gluster://') and not vol_object:
+        if path and is_network_protocol(path) and not vol_object:
             self._vol_object = conn.storageVolLookupByPath(path)
         if self._vol_object is not None:
             self._pool_object = None
@@ -464,11 +473,6 @@ class StorageBackend(_StorageBase):
                 parsexml=self._vol_object.XMLDesc(0))
         return self._vol_xml
 
-    def gluster_path_to_volpath(self, path):
-        vol = self._conn.storageVolLookupByPath(path)
-        pool = vol.storagePoolLookupByVolume()
-        return pool.name() + '/' + vol.name()
-
     ##############
     # Public API #
     ##############
@@ -476,10 +480,9 @@ class StorageBackend(_StorageBase):
     def _get_path(self):
         if self._vol_object:
             path = self._get_vol_xml().target_path
-            gluster_protocol = 'gluster://'
-            if path.startswith(gluster_protocol):
-	        search = re.search("(.*gluster:\/\/.*\/)(.*\/.*)", path)
-	        if search:
+            if path.startswith(GLUSTER + '://'):
+                search = re.search("(.*" + GLUSTER + ":\/\/.*\/)(.*\/.*)", path)
+                if search:
                     return search.group(2)
                 raise RuntimeError('internal error: can\'t parse path: "{0}"'.format(path))
             return path
