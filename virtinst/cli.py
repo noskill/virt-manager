@@ -985,7 +985,7 @@ class VirtCLIParser(object):
 
         if editting and optlist:
             # If an object is passed in, we are updating it in place, and
-            # only use the last command line occurence, eg. from virt-xml
+            # only use the last command line occurrence, eg. from virt-xml
             optlist = [optlist[-1]]
 
         ret = []
@@ -1865,6 +1865,7 @@ class ParserRNG(VirtCLIParser):
         def set_backend_cb(opts, inst, cliname, val):
             ignore = opts
             ignore = inst
+            # pylint: disable=attribute-defined-outside-init
             if cliname == "backend_mode":
                 self._cli_backend_mode = val
             elif cliname == "backend_type":
