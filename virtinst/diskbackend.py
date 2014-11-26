@@ -27,12 +27,7 @@ import libvirt
 import re
 
 from . import util
-from .storage import StoragePool, StorageVolume
-
-
-GLUSTER = 'gluster'
-SHEEPDOG = 'sheepdog'
-NETWORK_STORAGE_PROTOCOLS = (GLUSTER, SHEEPDOG)
+from .storage import StoragePool, StorageVolume, NETWORK_STORAGE_PROTOCOLS
 
 
 def check_if_path_managed(conn, path):
@@ -480,10 +475,10 @@ class StorageBackend(_StorageBase):
     def _get_path(self):
         if self._vol_object:
             path = self._get_vol_xml().target_path
-            if path.startswith(GLUSTER + '://'):
-                search = re.search("(.*" + GLUSTER + ":\/\/.*\/)(.*\/.*)", path)
+            if any(path.startswith(x + '://') for x in NETWORK_STORAGE_PROTOCOLS):
+                search = re.search("(.*(" + '|'.join(NETWORK_STORAGE_PROTOCOLS) + "):\/\/.*\/)(.*\/.*)", path)
                 if search:
-                    return search.group(2)
+                    return search.group(3)
                 raise RuntimeError('internal error: can\'t parse path: "{0}"'.format(path))
             return path
         return self._path

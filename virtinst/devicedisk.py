@@ -24,8 +24,6 @@ import stat
 import pwd
 import subprocess
 import logging
-import libvirt
-import libxml2
 import re
 
 import urlgrabber.progress as progress
@@ -114,7 +112,7 @@ def _distill_storage(conn, do_create, nomanaged,
         pass
     elif not storage_capable:
         pass
-    elif path and not nomanaged and not path.startswith('gluster://'):
+    elif path and not nomanaged and not diskbackend.is_network_protocol(path):
         path = os.path.abspath(path)
         (vol_object, pool, path_is_pool) = diskbackend.manage_path(conn, path)
 
@@ -543,9 +541,6 @@ class VirtualDisk(VirtualDevice):
         if self._storage_creator:
             raise ValueError("Can't change disk path if storage creation info "
                              "has been set.")
-        #if type(val) == libvirt.virStorageVol:
-            #self._change_backend(None, val)
-        #else:
         self._change_backend(val, None)
         self._xmlpath = self.path
 

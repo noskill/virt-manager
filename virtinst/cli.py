@@ -53,7 +53,7 @@ from .devicewatchdog import VirtualWatchdog
 from .domainnumatune import DomainNumatune
 from .nodedev import NodeDevice
 from .osxml import OSXML
-from .storage import StoragePool, StorageVolume
+from .storage import StoragePool, StorageVolume, NETWORK_STORAGE_PROTOCOLS
 
 
 force = False
@@ -1497,7 +1497,7 @@ def _parse_disk_source(guest, path, pool, vol, size, fmt, sparse):
                 raise ValueError(_("Format attribute not supported for this "
                                    "volume type"))
             volinst.format = fmt
-   
+
     elif vol:
         if not vol.count("/"):
             raise ValueError(_("Storage volume must be specified as "
@@ -1514,6 +1514,12 @@ def _parse_disk_source(guest, path, pool, vol, size, fmt, sparse):
     return abspath, volinst, volobj
 
 
+def _parse_network_protocol(path):
+    for net_protocol in NETWORK_STORAGE_PROTOCOLS:
+        if !volobj.path().startswith(net_protocol + '://'):
+            return net_protocol
+
+    
 class ParserDisk(VirtCLIParser):
     def _init_params(self):
         self.devclass = VirtualDisk
@@ -1598,10 +1604,9 @@ class ParserDisk(VirtCLIParser):
             self.guest, path, pool, vol, size, fmt, sparse)
 
         if volobj and volobj.path():
-            gluster_protocol = 'gluster://'
-            if volobj.path().startswith('gluster://'):
-                protocol = 'gluster'
-                tmp = volobj.path()[len(gluster_protocol):]
+            protocol = _parse_network_protocol(volobj.path())
+            if protocol is not None:
+                tmp = volobj.path()[len(protocol):]
                 host_name =  tmp.split('/')[0]
             path = volobj.path()
         else:

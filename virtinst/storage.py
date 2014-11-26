@@ -35,6 +35,10 @@ DEFAULT_DIR_TARGET_BASE = "/var/lib/libvirt/images/"
 DEFAULT_SCSI_TARGET = "/dev/disk/by-path"
 DEFAULT_MPATH_TARGET = "/dev/mapper"
 
+GLUSTER = 'gluster'
+SHEEPDOG = 'sheepdog'
+NETWORK_STORAGE_PROTOCOLS = (GLUSTER, SHEEPDOG)
+
 
 class _StoragePermissions(XMLBuilder):
     _XML_ROOT_NAME = "permissions"
@@ -254,7 +258,7 @@ class StoragePool(_StorageObject):
             if use_source:
                 xml_path = pool.source_path
             else:
-                if pool.type == 'gluster':
+                if pool.type == StoragePool.TYPE_GLUSTER:
                     if pool.source_name == path:
                         return True
                     return False
