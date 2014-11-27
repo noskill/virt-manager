@@ -1750,10 +1750,11 @@ ba</description>
   </source>
   <volume type='network'>
   <name>vol_sheepdog</name>
+  <key>sheep/vol_sheepdog</key>
   <capacity unit='bytes'>1024</capacity>
   <allocation unit='bytes'>0</allocation>
   <target>
-    <path>myshpool:vol_sheepdog</path>
+    <path>sheepdog:vol_sheepdog</path>
     <format type='unknown'/>
     <permissions>
       <mode>0600</mode>
@@ -1776,7 +1777,7 @@ ba</description>
     <name>test-volume</name>
   </source>
   <volume type='network'>
-  <name>test-volume2.raw</name>
+  <name>test-gluster.raw</name>
   <key>gluster://192.168.1.100/test-volume/test-gluster.raw</key>
   <capacity unit='bytes'>10737418240</capacity>
   <allocation unit='bytes'>2489327616</allocation>

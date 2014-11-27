@@ -69,6 +69,7 @@ _aliases = {
     "linux" : "generic",
     "windows" : "winxp",
     "solaris" : "solaris10",
+    "virtio26": "fedora10",
 }
 _SENTINEL = -1234
 _allvariants = {}
@@ -243,9 +244,6 @@ class _OsVariant(_OsVariantType):
         devs = self._os.get_all_devices(fltr)
         if devs.get_length():
             return devs.get_nth(0).get_bus_type()
-        return _SENTINEL
-
-    def _get_diskbus(self):
         return _SENTINEL
 
     @staticmethod
@@ -458,7 +456,6 @@ class _OsVariant(_OsVariantType):
         self.hyperv_features = self._is_hyperv_features()
         self.virtioconsole = lambda: self._is_virtioconsole()
         self.netmodel = lambda: self._get_netmodel()
-        self.diskbus = lambda: self._get_diskbus()
         self.inputtype = lambda: self._get_inputtype()
         self.inputbus = lambda: self.get_inputbus()
         self.virtiodisk = lambda: self._is_virtiodisk()

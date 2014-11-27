@@ -381,9 +381,9 @@ class XMLParseTest(unittest.TestCase):
 
         check("host_name", "test.domain", "192.168.1.100")
         pool = conn.storagePoolLookupByName('gluster-pool')
-        vol = pool.storageVolLookupByName('test-volume2.raw')
+        vol = pool.storageVolLookupByName('test-gluster.raw')
         self.assertEquals(disk_gl.path, "sheepdog-pool/test-sheepdog.raw")
-        disk_gl.path = vol
+        disk_gl.path = 'gluster://192.168.1.100/test-volume/test-gluster.raw'
         self.assertEquals(disk_gl.path, "test-volume/test-gluster.raw")
         self._alter_compare(guest.get_xml_config(), outfile)
 
