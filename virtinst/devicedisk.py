@@ -385,7 +385,7 @@ class VirtualDisk(VirtualDevice):
         """
         Return a list of VM names that are using the passed path.
 
-        @param conn: viStorageBackendrConnect to check VMs
+        @param conn: virConnect to check VMs
         @param path: Path to check for
         @param shareable: Path we are checking is marked shareable, so
             don't warn if it conflicts with another shareable source.

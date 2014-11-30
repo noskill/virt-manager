@@ -1516,10 +1516,10 @@ def _parse_disk_source(guest, path, pool, vol, size, fmt, sparse):
 
 def _parse_network_protocol(path):
     for net_protocol in NETWORK_STORAGE_PROTOCOLS:
-        if !volobj.path().startswith(net_protocol + '://'):
+        if path.startswith(net_protocol + '://'):
             return net_protocol
 
-    
+
 class ParserDisk(VirtCLIParser):
     def _init_params(self):
         self.devclass = VirtualDisk
@@ -1607,7 +1607,7 @@ class ParserDisk(VirtCLIParser):
             protocol = _parse_network_protocol(volobj.path())
             if protocol is not None:
                 tmp = volobj.path()[len(protocol):]
-                host_name =  tmp.split('/')[0]
+                host_name = tmp.split('/')[0]
             path = volobj.path()
         else:
             path = abspath
