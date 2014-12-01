@@ -112,7 +112,7 @@ def _distill_storage(conn, do_create, nomanaged,
         pass
     elif not storage_capable:
         pass
-    elif path and not nomanaged and not diskbackend.is_network_protocol(path):
+    elif path and not (nomanaged or diskbackend.is_network_protocol(path)):
         path = os.path.abspath(path)
         (vol_object, pool, path_is_pool) = diskbackend.manage_path(conn, path)
 

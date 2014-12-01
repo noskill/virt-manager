@@ -24,6 +24,7 @@ import statvfs
 
 import libxml2
 import libvirt
+import re
 
 from . import util
 from .storage import StoragePool, StorageVolume, NETWORK_STORAGE_PROTOCOLS
@@ -433,10 +434,10 @@ class StorageBackend(_StorageBase):
         self._vol_object = vol_object
         self._pool_object = pool_object
         self._path = path
-        if path and is_network_protocol(path) and not vol_object and not pool_object:
+        if path and is_network_protocol(path) and not vol_object:
             self._vol_object = conn.storageVolLookupByPath(path)
-            self._pool_object = self._vol_object.storagePoolLookupByVolume()
         if self._vol_object is not None:
+            self._pool_object = None
             self._path = None
         elif self._pool_object is not None:
             if self._path is None:
@@ -472,11 +473,16 @@ class StorageBackend(_StorageBase):
     ##############
 
     def _get_path(self):
-        if self._vol_object and self._pool_object:
-            return self._pool_object.name() + '/' + self._vol_object.name()
-        elif self._vol_object:
-            return self._get_vol_xml().target_path
+        if self._vol_object:
+            path = self._get_vol_xml().target_path
+            if any(path.startswith(x + '://') for x in NETWORK_STORAGE_PROTOCOLS):
+                search = re.search("(.*(" + '|'.join(NETWORK_STORAGE_PROTOCOLS) + "):\/\/.*\/)(.*\/.*)", path)
+                if search:
+                    return search.group(3)
+                raise RuntimeError('internal error: can\'t parse path: "{0}"'.format(path))
+            return path
         return self._path
+
     path = property(_get_path)
 
     def get_vol_object(self):

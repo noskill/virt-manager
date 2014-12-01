@@ -1606,7 +1606,7 @@ class ParserDisk(VirtCLIParser):
         if volobj and volobj.path():
             protocol = _parse_network_protocol(volobj.path())
             if protocol is not None:
-                tmp = volobj.path()[len(protocol):]
+                tmp = volobj.path()[len(protocol + '://'):]
                 host_name = tmp.split('/')[0]
             path = volobj.path()
         else:
